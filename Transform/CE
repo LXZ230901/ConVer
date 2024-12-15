@@ -1,0 +1,8 @@
+interface LoopBack100
+ ipv6 address 240A:A3E8:100::100/40
+
+interface GigabitEthernet1/5/4.1001
+ encapsulation dot1q 1001
+ ipv6 address 240A: A3E8:100::2/64
+
+ipv6 route 240A:A3E8::/32 240A:A3E8:100::1

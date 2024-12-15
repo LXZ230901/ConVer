@@ -1,0 +1,37 @@
+!
+hostname edge-3
+!
+!
+!
+interface Loopback0
+  ip address 70.0.4.0/32
+!
+interface Serial0
+  ip address 10.0.1.1/31
+!
+interface Serial1
+  ip address 11.0.0.1/31
+!
+interface Ethernet0
+  ip address 70.0.4.0/31
+!
+interface Ethernet1
+  ip address 70.0.4.2/31
+!
+ip prefix-list pl 10.10.0.0/16 ge 16 le 32
+!
+router bgp 3
+  neighbor 11.0.0.0 remote-as 1
+  neighbor 192.168.44.2 remote-as 4
+  neighbor 192.168.44.2 route-map UPDATE_LOCAL_PREF in
+!
+route-map UPDATE_LOCAL_PREF permit 10
+  match ip address prefix-list pl
+  set community 1
+!
+route-map UPDATE_LOCAL_PREF permit 20
+  set local-preference 200
+!
+!
+!
+end

@@ -1,0 +1,8 @@
+[
+  {
+    "class" : "org.batfish.symbolic.answers.SmtOneAnswerElement",
+    "result" : {
+      "verified" : true
+    }
+  }
+]

@@ -1,0 +1,75 @@
+
+
+router isis 1
+ net 49.0002.0000.0000.0006.00
+!
+interface GigabitEthernet0/0/0
+ ip address 10.0.11.2 255.255.255.0
+ isis network point-to-point
+!
+interface GigabitEthernet0/0/1
+ ip address 10.0.10.2 255.255.255.0
+ isis network point-to-point
+!
+interface GigabitEthernet0/0/2
+ ip address 12.0.0.1 255.255.255.0
+!
+interface Null0
+!
+interface Loopback0
+ ip address 10.10.10.10 255.255.255.255
+ isis network point-to-point
+!
+router bgp 1
+ bgp router-id 10.10.10.10
+ neighbor 1.1.1.1 remote-as 1
+ neighbor 1.1.1.1 update-source Loopback0
+ neighbor 2.2.2.2 remote-as 1
+ neighbor 2.2.2.2 update-source Loopback0
+ neighbor 3.3.3.3 remote-as 1
+ neighbor 3.3.3.3 update-source Loopback0
+ neighbor 4.4.4.4 remote-as 1
+ neighbor 4.4.4.4 update-source Loopback0
+ neighbor 5.5.5.5 remote-as 1
+ neighbor 5.5.5.5 update-source Loopback0
+ neighbor 7.7.7.7 remote-as 1
+ neighbor 7.7.7.7 update-source Loopback0
+ neighbor 8.8.8.8 remote-as 1
+ neighbor 8.8.8.8 update-source Loopback0
+ neighbor 9.9.9.9 remote-as 1
+ neighbor 9.9.9.9 update-source Loopback0
+ neighbor 12.0.0.2 remote-as 3
+!
+address-family ipv4
+ network 10.0.6.0 mask 255.255.255.0
+ network 10.0.9.0 mask 255.255.255.0
+ network 10.0.10.0 mask 255.255.255.0
+ network 10.10.10.10 mask 255.255.255.255
+ neighbor 1.1.1.1 activate
+ neighbor 1.1.1.1 next-hop-self
+ neighbor 2.2.2.2 activate
+ neighbor 2.2.2.2 next-hop-self
+ neighbor 3.3.3.3 activate
+ neighbor 3.3.3.3 next-hop-self
+ neighbor 4.4.4.4 activate
+ neighbor 4.4.4.4 next-hop-self
+ neighbor 5.5.5.5 activate
+ neighbor 5.5.5.5 next-hop-self
+ neighbor 7.7.7.7 activate
+ neighbor 7.7.7.7 next-hop-self
+ neighbor 8.8.8.8 activate
+ neighbor 8.8.8.8 next-hop-self
+ neighbor 9.9.9.9 activate
+ neighbor 9.9.9.9 next-hop-self
+ neighbor 12.0.0.2 activate
+exit-address-family
+!
+ip route 0.0.0.0 0.0.0.0 7.7.7.7
+!
+line con 0
+ password <password>
+line vty 0 4
+line vty 16 20
+!
+end
+

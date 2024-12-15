@@ -1,0 +1,26 @@
+!
+hostname edge-2
+!
+interface Loopback0
+  ip address 70.0.2.0/32
+!
+interface Serial0
+  ip address 10.0.0.1/31
+!
+interface Ethernet0
+  ip address 70.0.2.0/31
+!
+interface Ethernet1
+  ip address 70.0.2.2/31
+!
+!
+router bgp 2
+  bgp bestpath as-path multipath-relax
+  neighbor 10.0.0.0 remote-as 1
+  neighbor 13.0.0.0 remote-as 5
+  neighbor 13.0.0.0 route-map UPDATE_LOCAL_PREF in
+!
+route-map UPDATE_LOCAL_PREF permit 20
+  set local-preference 200
+!
+end

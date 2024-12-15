@@ -1,0 +1,15 @@
+[
+  {
+    "class" : "org.batfish.symbolic.answers.SmtOneAnswerElement",
+    "result" : {
+      "forwardingModel" : [
+        "R1,Loopback0 --> _,_ (CONNECTED)",
+        "R2,Serial0 --> R1,Serial0 (BGP)"
+      ],
+      "packetModel" : {
+        "dstIp" : "42.42.42.0"
+      },
+      "verified" : false
+    }
+  }
+]

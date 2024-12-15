@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/allinone/pom.xml" />
+        <option value="$PROJECT_DIR$/batfish-client/pom.xml" />
+        <option value="$PROJECT_DIR$/batfish-common-protocol/pom.xml" />
+        <option value="$PROJECT_DIR$/batfish/pom.xml" />
+        <option value="$PROJECT_DIR$/build-tools/pom.xml" />
+        <option value="$PROJECT_DIR$/coordinator/pom.xml" />
+        <option value="$PROJECT_DIR$/question/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+</project>

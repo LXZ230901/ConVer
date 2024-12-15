@@ -1,0 +1,17 @@
+router isis 1
+ is-type level-2
+ net 49.0004.5090.0755.0102.0001.4001.00
+ metric-style wide
+ authentication mode md5
+ authentication key-chain ISIS-MD5-KEY
+ lsp-gen-interval 20
+ spf-interval 50
+ spf-delay 100
+ nsf ietf
+ mpls traffic-eng router-id Loopback0
+ address-family ipv4 unicast
+  metric 21
+  redistribute bgp 38272 route-map BGP-TO-ISIS
+ exit-address-family
+
+

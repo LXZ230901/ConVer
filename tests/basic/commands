@@ -1,0 +1,165 @@
+Topology initialLayer3Topology,#this file assumes that we are running from top-level source directory
+
+add-batfish-option haltonconverterror
+add-batfish-option haltonparseerror
+add-batfish-option verboseparse
+
+# some ref tests using example testrig
+test -compareall tests/basic/init.ref init-testrig test_rigs/example basic-example
+test -compareall tests/basic/genDp.ref generate-dataplane
+test -raw tests/basic/topology.ref get-object testrig_pojo_topology
+test tests/basic/nodes-summary.ref get nodes summary=true
+test tests/basic/nodes.ref get nodes summary=false
+test tests/basic/neighbors-summary.ref get neighbors neighborTypes=["ebgp","ibgp","ospf","lan"]
+test tests/basic/neighbors.ref get neighbors style=verbose, neighborTypes=["ebgp","ibgp","ospf","lan"]
+test tests/basic/routes.ref get routes
+
+# some ref tests using delta testrig
+test -compareall tests/basic/init-delta.ref init-delta-testrig test_rigs/example-with-delta basic-example-delta
+test -compareall tests/basic/genDp-delta.ref generate-delta-dataplane
+test tests/basic/nodes-diff.ref get nodes summary=false, differential=true
+
+# Everything below here is to be converted into regular unit tests in some form.
+test tests/basic/aclReachability.ref get aclReachability
+test tests/basic/assert.ref get assert assertions=[{"assertion":"(eq 15 (pathsize '$.nodes[*]'))"},{"assertion":"(eq 0 (pathsize '$.nodes[\"as1border\"]'))"},{"assertion":"(not (eq 0 (pathsize '$.nodes[\"as1border1\"]')))"}, {"assertion":"(eq (pathsize '$.nodes[*].aaaSettings.newModel') (pathsize '$.nodes[*].aaaSettings[?(@.newModel == true)]'))"}]
+test tests/basic/bgpSessionStatus.ref get bgpsessionstatus type="ebgp.*", status="missing.*"
+test tests/basic/bgpSessionStatusNew.ref get bgpsessionstatusnew node1Regex="as2.*", node2Regex="as3.*", includeEstablishedCount=true
+test tests/basic/compareSameName.ref get compareSameName
+test tests/basic/error.ref -error get error
+test tests/basic/isisLoopbacks.ref get isisLoopbacks
+test tests/basic/ospfSessionCheck.ref get ospfsessioncheck
+test tests/basic/ospfStatus.ref get ospfstatus interfacesSpecifier="Loopback.*", status=".*passive"
+test tests/basic/routes-diff.ref get routes differential=true
+test tests/basic/selfAdjacencies.ref get selfAdjacencies
+test tests/basic/traceroute-1-2.ref get traceroute ingressNode="as1core1", dst="host1"
+test tests/basic/traceroute-1-2-ignoreAcls.ref get traceroute ingressNode="as1core1", dst="host1", ignoreAcls=true
+test tests/basic/traceroute-2-1.ref get traceroute ingressNode="host2", dst="1.0.1.1"
+test tests/basic/tracefilters.ref get tracefilters dst="1.1.1.1", nodeRegex="host.*", filterRegex="filter.*"
+test tests/basic/multipath-host1.ref get reachability type="multipath", ingressNodeRegex="host1", srcIps=["2.128.0.0"], dstIps=["3.0.1.2"], ipProtocols=["TCP"], srcPorts=[0], dstPorts=[0]
+test tests/basic/multipath-host2.ref get reachability type="multipath", ingressNodeRegex="host2", srcIps=["2.128.0.0"], dstIps=["1.0.1.1"], ipProtocols=["UDP"], srcPorts=[0], dstPorts=[0]
+test tests/basic/bgpAsnUse.ref get bgpasnuse minCount=2
+test tests/basic/uniqueIpAssignments.ref get uniqueIpAssignments
+test tests/basic/bgpadvertisements.ref get bgpadvertisements nodeRegex = "as2border2"
+test tests/basic/outliers.ref get outliers
+test tests/basic/outliers2.ref get outliers hypothesis="sameName"
+test tests/basic/outliers3.ref get outliers hypothesis="sameServers"
+test tests/basic/outliers-verbose.ref get outliers verbose=True
+
+# takes toooo long. need to constrain to be useful.
+# test -comparesummary tests/basic/reachability-pathdiff.ref get reachability type=pathdiff
+
+# init-environment
+test -compareall tests/basic/init-env.ref init-environment newEnvironmentName="newenv", interfaceBlacklist=[{hostname="as2border2",interface="GigabitEthernet0/0"}]
+test -compareall tests/basic/genDp-env.ref generate-delta-dataplane
+# failure case with non-existent interface -- but the stack trace returned in the answer is bad mojo the test
+#test tests/basic/init-env-bad.ref init-environment newEnvironmentName="newenv-bad", interfaceBlacklist=[{hostname="as2border2",interface="GigabitEthernet"}]
+
+# disable-as-reuse
+test -compareall tests/basic/init-dc-as-reuse.ref init-testrig test_rigs/dc-as-reuse basic-dc-as-reuse
+test tests/basic/routes-dc-as-reuse.ref get routes
+
+# snat
+test -compareall tests/basic/init-snat.ref init-testrig test_rigs/snat basic-snat
+test tests/basic/traceroute-snat.ref get traceroute ingressNode=host1, dst="1.2.3.4"
+
+# iptables
+test -compareall tests/basic/example-iptables-init.ref init-testrig test_rigs/example-iptables
+test tests/basic/example-iptables-reachability.ref get reachability ingressNodeRegex="z1-.*", dstIps=["10.0.4.20","10.0.4.21"], srcIps=["10.0.3.0/24"], actions=["DROP"]
+test tests/basic/example-iptables-transit.ref get reachability notIngressNodeRegex="z1-.*", dstIps=["10.0.3.0/24"], notDstIps=["10.0.3.1"], notTransitNodes="z1-firewall", actions=["ACCEPT"]
+test tests/basic/example-iptables-protection.ref get reachability notIngressNodeRegex="z1-.*", dstIps=["10.0.3.20","10.0.3.21"], notSrcIps=["10.0.3.0/24", "10.0.4.0/24"], notIpProtocols=["OSPF"], actions=["ACCEPT"]
+
+# z3 timeout - 1 millisecond
+add-batfish-option z3timeout 1
+init-testrig test_rigs/fattree-examples/fattree2
+test tests/basic/z3timeout.ref -error get reachability dstIps=['70.0.2.0']
+
+init-testrig test_rigs/test-example
+get routes
+init-testrig test_rigs/test-example-e
+get routes
+init-testrig test_rigs/test-example-er
+get routes
+init-testrig test_rigs/test-example-ex
+get routes
+init-testrig test_rigs/test-example-ea
+get routes
+init-testrig test_rigs/test-example-eb
+get routes
+init-testrig test_rigs/test-example-ec
+get routes
+init-testrig test_rigs/test-example-ej
+get routes
+init-testrig test_rigs/test-example-eh 没有设这属性的更改部分
+get routes
+init-testrig test_rigs/test-example-eg 没有设这属性的更改部分,有外部邻居的情况
+get routes
+init-testrig test_rigs/test-example-ef 没有路由策略,有外部邻居的情况
+ab:get smt-reachability ingressNodeRegex="edge-2", finalNodeRegex="edge-4",finalIfaceRegex="Ethernet1"
+ab:get smt-reachability ingressNodeRegex="edge-4", finalNodeRegex="edge-2",finalIfaceRegex="Ethernet0"
+get smt-reachability ingressNodeRegex="edge-2", dstIps=["70.0.4.0/24"]
+init-testrig test_rigs/smt-examples/ENV2
+get smt-reachability ingressNodeRegex="R2", finalNodeRegex="R1",finalIfaceRegex="Loopback0"
+get reachability ingressNodeRegex="R2", finalNodeRegex="R1",finalIfaceRegex="Loopback0"
+init-testrig test_rigs/smt-examples/ENV4
+get smt-reachability ingressNodeRegex="R2", finalNodeRegex="R1",finalIfaceRegex="Loopback0"
+get reachability ingressNodeRegex="R2", finalNodeRegex="R1",finalIfaceRegex="Loopback0"
+init-testrig test_rigs/test-example-prefern
+init-testrig test_rigs/test-example-acl
+init-testrig test_rigs/test-example-p
+init-testrig test_rigs/test-example-preferfinal
+init-testrig test_rigs/isis3 //san jie dian isis
+init-testrig test_rigs/isis6 //new san jie dian isis
+init-testrig test_rigs/test-example-isis //new san jie dian isis
+init-testrig test_rigs/test-example-isis2
+init-testrig test_rigs/test-example-isis
+init-testrig test_rigs/test-example-isis3
+get smt-reachability ingressNodeRegex="R13", dstIps=["10.0.9.0/24"]
+init-testrig test_rigs/test-example-isis-external
+init-testrig test_rigs/test-example-isis-external2
+init-testrig test_rigs/fattree-examples/fattree2
+init-testrig test_rigs/fullmesh100
+init-testrig test_rigs/fullmesh10
+init-testrig test_rigs/fattree10
+init-testrig test_rigs/fattree3
+init-testrig test_rigs/fattree4
+init-testrig test_rigs/fattree10-external
+init-testrig test_rigs/bics
+get smt-reachability ingressNodeRegex="edge-62", finalNodeRegex="edge-92",finalIfaceRegex="Ethernet2"
+init-testrig test_rigs/fattree8
+init-testrig test_rigs/fattree8-external
+70.0.79.0/24
+get smt-reachability ingressNodeRegex="edge-32", dstIps=["70.0.79.0/24"],failures=1
+init-testrig test_rigs/fattree8-external
+get smt-reachability ingressNodeRegex="edge-20", finalNodeRegex="edge-71",finalIfaceRegex="Ethernet1",failures=1
+get smt-reachability ingressNodeRegex="edge-20", finalNodeRegex="edge-79",finalIfaceRegex="Ethernet1",failures=1
+get smt-reachability ingressNodeRegex="edge-20", finalNodeRegex="edge-39",finalIfaceRegex="Ethernet1",failures=1
+init-testrig test_rigs/fattree8-1
+get smt-reachability ingressNodeRegex="edge-20", finalNodeRegex="edge-39",finalIfaceRegex="Ethernet1",failures=1
+init-testrig test_rigs/fattree4
+get smt-reachability ingressNodeRegex="edge-6", finalNodeRegex="edge-19",finalIfaceRegex="Ethernet1",failures=1
+get smt-reachability ingressNodeRegex="edge-6", finalNodeRegex="edge-15",finalIfaceRegex="Ethernet1",failures=1
+get smt-reachability ingressNodeRegex="edge-6", finalNodeRegex="edge-11",finalIfaceRegex="Ethernet1",failures=1
+get smt-reachability ingressNodeRegex="edge-6", dstIps=["70.0.19.0/24"],failures=1
+init-testrig test_rigs/fattree3
+init-testrig test_rigs/fattree2
+init-testrig test_rigs/test-example-e4
+get smt-reachability ingressNodeRegex="aggregation-33" ,  finalNodeRegex="edge-39" 
+get smt-reachability ingressNodeRegex="aggregation-33" ,  finalNodeRegex="edge-39" 
+get smt-reachability ingressNodeRegex="core-2" ,  finalNodeRegex="edge-15"
+get smt-reachability ingressNodeRegex="edge-29" ,  finalNodeRegex="aggregation-24"
+get reachability ingressNodeRegex="edge-37", dstIps=["70.0.39.1"], srcIps=["10.0.3.0/24"]
+init-testrig test_rigs/test-example-community1
+init-testrig test_rigs/test-example-community2
+init-testrig test_rigs/test-example-community5
+init-testrig test_rigs/test-example-community6
+init-testrig test_rigs/route-leak-3
+init-testrig test_rigs/valley-free-1
+init-testrig test_rigs/waypoint-1
+init-testrig test_rigs/convertC
+init-testrig test_rigs/bics-simple
+init-testrig test_rigs/bics-TEST
+init-testrig test_rigs/bics-external
+init-testrig test_rigs/waypoint-2
+init-testrig test_rigs/waypoint-3
+init-testrig -autoanalyze test_rigs/waypoint-1
+init-testrig /home/lxz/Ver/demo

@@ -1,0 +1,28 @@
+!
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+!
+hostname R15
+!
+interface Loopback0
+  ip address 15.15.15.15/32
+!
+interface Serial0
+  ip address 10.0.20.2/24
+  ip router isis
+!
+!
+!
+!
+router isis
+  net 49.0005.0000.0000.0002.00
+  is-type level-1
+!
+!
+!
+control-plane
+!
+!
+end

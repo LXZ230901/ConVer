@@ -1,0 +1,47 @@
+{
+  "answerElements" : [
+    {
+      "class" : "org.batfish.datamodel.answers.BdpAnswerElement",
+      "bgpBestPathRibRoutesByIteration" : {
+        "1" : 20,
+        "2" : 50,
+        "3" : 64,
+        "4" : 72,
+        "5" : 74,
+        "6" : 76,
+        "7" : 76,
+        "8" : 76
+      },
+      "bgpMultipathRibRoutesByIteration" : {
+        "1" : 28,
+        "2" : 80,
+        "3" : 102,
+        "4" : 120,
+        "5" : 122,
+        "6" : 124,
+        "7" : 124,
+        "8" : 124
+      },
+      "completedOscillationRecoveryAttempts" : 0,
+      "dependentRoutesIterations" : 8,
+      "mainRibRoutesByIteration" : {
+        "1" : 166,
+        "2" : 245,
+        "3" : 267,
+        "4" : 285,
+        "5" : 287,
+        "6" : 289,
+        "7" : 289,
+        "8" : 289
+      },
+      "ospfInternalIterations" : 3,
+      "version" : "0.36.0"
+    }
+  ],
+  "status" : "SUCCESS",
+  "summary" : {
+    "numFailed" : 0,
+    "numPassed" : 0,
+    "numResults" : 0
+  }
+}

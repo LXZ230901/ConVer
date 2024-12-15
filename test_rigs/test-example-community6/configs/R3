@@ -1,0 +1,36 @@
+!
+hostname R3
+!
+interface Loopback0
+  ip address 70.0.2.0/32
+!
+interface Serial0
+  ip address 10.0.1.1/24
+!
+interface Serial1
+  ip address 10.0.3.0/24
+!
+route-map R4Policy permit 100
+  match community 1
+!
+route-map R4Policy deny 200
+  match community 2
+!
+route-map R4Policy deny 300
+!
+!
+!
+ip community-list 1 permit 65000:1
+ip community-list 2 permit 65000:2
+!
+!
+router bgp 3
+  neighbor 10.0.1.0 remote-as 1
+  neighbor as4 peer-group
+  neighbor as4 remote-as 4
+  neighbor as4 route-map R4Policy out
+  neighbor as4 send-community
+  neighbor 10.0.3.1 peer-group as4
+!
+!
+end
