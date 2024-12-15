@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <option name="BUILD_PROCESS_HEAP_SIZE" value="2048" />
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="build-tools" />
+        <module name="coordinator" />
+        <module name="question" />
+        <module name="test" />
+        <module name="batfish-common-protocol" />
+        <module name="batfish" />
+        <module name="batfish-client" />
+        <module name="allinone" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="BDD_test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="BDD_test" options="-Werror -Xlint:all -Xlint:-processing -XDignore.symbol.file" />
+      <module name="allinone" options="-Werror -Xlint:all -Xlint:-processing -XDignore.symbol.file" />
+      <module name="batfish" options="-Werror -Xlint:all -Xlint:-processing -XDignore.symbol.file" />
+      <module name="batfish-client" options="-Werror -Xlint:all -Xlint:-processing -XDignore.symbol.file" />
+      <module name="batfish-common-protocol" options="-Werror -Xlint:all -Xlint:-processing -XDignore.symbol.file" />
+      <module name="build-tools" options="-Werror -Xlint:all -Xlint:-processing -XDignore.symbol.file" />
+      <module name="coordinator" options="-Werror -Xlint:all -Xlint:-processing -XDignore.symbol.file" />
+      <module name="question" options="-Werror -Xlint:all -Xlint:-processing -XDignore.symbol.file" />
+      <module name="test" options="-Werror -Xlint:all -Xlint:-processing -XDignore.symbol.file" />
+    </option>
+  </component>
+</project>

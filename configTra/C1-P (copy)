@@ -1,0 +1,250 @@
+﻿
+#
+te ipv6-router-id 2001:253:1::C09
+te attribute enable
+#
+bridge-domain 109
+ description pku-edge-ivi-6
+#
+dhcp server request-packet all-interface disable
+#
+dot1x-template 1
+#
+acl name login-acl basic
+ rule 10 permit source 10.0.1.46 0
+ rule 15 permit source 219.243.215.64 0.0.0.63
+ rule 20 permit source 10.0.1.0 0.0.0.255
+ rule 90 permit source 10.0.0.0 0.255.255.255
+ rule 111 permit source 203.91.120.201 0
+#
+acl name snmp-acl basic
+ rule 5 permit source 219.243.208.10 0
+ rule 10 permit source 10.0.1.46 0
+ rule 15 permit source 10.0.1.0 0.0.0.255
+ rule 50 permit source 219.243.208.18 0
+#
+acl ipv6 name login-acl basic
+ rule 5 permit source 2001:DA8:BD:1::/64
+ rule 90 permit source 2001:253::/32
+#
+acl ipv6 name snmp-acl advance
+ rule 5 permit ipv6 source 2001:DA8:FF::/64
+#
+dhcpv6 option-priority pool radius domain
+#
+#
+segment-routing ipv6
+ reduce-srh enable
+ encapsulation source-address 2001:253:1::C09
+ locator pku-c1 ipv6-prefix 2001:253:1:C09:: 96 static 12 args 16
+ srv6-te-policy traffic-statistics enable
+ srv6-te-policy bgp-ls enable
+#
+isis 1
+ is-level level-2
+ cost-style wide-compatible
+ timer lsp-generation 1 50 50 level-2
+ bfd all-interfaces enable
+ bandwidth-reference 1000000
+ auto-cost enable compatible
+ network-entity 02.1829.0041.0009.00
+ is-name pku-c1
+ import-route direct
+ bfd session-up check
+ set-overload on-startup 360 route-delay-distribute 240 send-sa-bit 120 allow external
+ #
+ ipv6 enable topology ipv6
+ ipv6 bandwidth-reference 1000000
+ ipv6 auto-cost enable compatible
+ ipv6 bfd all-interfaces enable
+ ipv6 bfd all-interfaces min-tx-interval 10 min-rx-interval 10 frr-binding
+ segment-routing ipv6 locator pku-c1
+ ipv6 avoid-microloop segment-routing
+ ipv6 avoid-microloop segment-routing rib-update-delay 10000
+ ipv6 frr
+  loop-free-alternate level-2
+  ti-lfa level-2
+ #
+#
+route loop-detect isis enable
+#
+interface Virtual-Template0
+ ppp authentication-mode auto
+#
+interface GigabitEthernet0/0/0
+ speed auto
+ duplex auto
+ undo shutdown
+ ip address 192.168.1.1 255.255.255.0
+#
+interface 100GE5/0/0.1
+ vlan-type dot1q 1
+ mtu 9600
+ description pku-c1-bj
+ ipv6 enable
+ ip address 10.1.3.2 255.255.255.252
+ ipv6 address 2001:253:1:3::2/64
+ ipv6 mtu 9600
+ trust upstream default
+ isis enable 1
+ isis ipv6 enable 1
+ isis circuit-type p2p
+ isis circuit-level level-2
+ isis peer hold-max-cost timer 10000
+ te bandwidth max-reservable-bandwidth dynamic 100
+ te bandwidth dynamic bc0 100
+#
+interface 100GE7/0/0.1
+ vlan-type dot1q 1
+ mtu 9600
+ description pku-c1-c2
+ ipv6 enable
+ ip address 10.3.9.1 255.255.255.252
+ ipv6 address 2001:253:3:9::1/64
+ ipv6 mtu 9600
+ isis enable 1
+ isis ipv6 enable 1
+ isis circuit-type p2p
+ isis circuit-level level-2
+ isis ipv6 cost 8000000
+ isis cost 8000000
+#
+interface 100GE7/0/1
+ description pku-c1-a1_100g
+ undo shutdown
+ undo dcn
+#
+interface 100GE7/0/1.1
+ vlan-type dot1q 1
+ mtu 9600
+ description pku-c1-a1
+ ipv6 enable
+ ip address 10.4.9.1 255.255.255.252
+ ipv6 address 2001:253:4:9::1/64
+ ipv6 mtu 9600
+ trust upstream default
+ isis enable 1
+ isis ipv6 enable 1
+ isis circuit-type p2p
+ isis circuit-level level-2
+ isis peer hold-max-cost timer 10000
+ te bandwidth max-reservable-bandwidth dynamic 100
+ te bandwidth dynamic bc0 100
+#
+interface 100GE7/0/1.109
+ vlan-type dot1q 109
+ ipv6 enable
+ ip address 10.14.9.2 255.255.255.0
+ ipv6 address 2001:253:E:9::1001/64
+ ipv6 mtu 9600
+#
+interface 100GE7/0/2
+ undo shutdown
+ undo dcn
+#
+interface 100GE7/0/2.1
+ vlan-type dot1q 1
+ mtu 9600
+ ipv6 enable
+ ip address 10.12.9.1 255.255.255.252
+ ipv6 address 2001:253:12:9::1/64
+ ipv6 mtu 9600
+ statistic enable
+ trust upstream default
+ isis enable 1
+ isis ipv6 enable 1
+ isis circuit-type p2p
+ isis circuit-level level-2
+ isis bfd enable
+ isis bfd min-tx-interval 100 min-rx-interval 100
+ isis peer hold-max-cost timer 10000
+ te bandwidth max-reservable-bandwidth dynamic 100
+ te bandwidth dynamic bc0 100
+#
+interface HP-GE9/3/0
+ undo shutdown
+#
+interface HP-GE10/3/0
+ undo shutdown
+#
+interface LoopBack0
+ description pku-Core1_Tsinghua
+ ipv6 enable
+ ip address 118.229.41.9 255.255.255.255
+ ipv6 address 2001:253:1::C09/128
+ isis enable 1
+ isis ipv6 enable 1
+ isis circuit-level level-2
+#
+interface NULL0
+#
+bgp 38272
+ router-id 118.229.41.9
+ private-4-byte-as enable
+ group ibgpv6-core-fm internal
+ peer ibgpv6-core-fm connect-interface LoopBack0
+ peer 2001:253:1::C01 as-number 38272
+ peer 2001:253:1::C01 group ibgpv6-core-fm
+ peer 2001:253:1::C01 description to_fm_bj-c1
+ group ibgpv6-core-rr internal
+ peer ibgpv6-core-rr connect-interface LoopBack0
+ peer 2001:253:1::A09 as-number 38272
+ peer 2001:253:1::A09 group ibgpv6-core-rr
+ peer 2001:253:1::A09 description to_rrc_pku-a1
+ peer 2001:253:1::E09 as-number 38272
+ peer 2001:253:1::E09 group ibgpv6-core-rr
+ peer 2001:253:1::E09 description to_rrc_pku-a1
+ #
+ ipv4-family unicast
+  undo synchronization
+  undo peer ibgpv6-core-fm enable
+  undo peer ibgpv6-core-rr enable
+ #
+ ipv6-family unicast
+  undo synchronization
+  reflector cluster-id 118.229.41.9
+  peer ibgpv6-core-fm enable
+  peer ibgpv6-core-fm next-hop-local
+  peer ibgpv6-core-fm advertise-community
+  peer 2001:253:1::C01 enable
+  peer 2001:253:1::C01 group ibgpv6-core-fm
+  peer ibgpv6-core-rr enable
+  peer ibgpv6-core-rr reflect-client
+  peer ibgpv6-core-rr next-hop-local
+  peer ibgpv6-core-rr advertise-community
+  peer 2001:253:1::A09 enable
+  peer 2001:253:1::A09 group ibgpv6-core-rr
+  peer 2001:253:1::E09 enable
+  peer 2001:253:1::E09 group ibgpv6-core-rr
+ #
+ l2vpn-family evpn
+  reflector cluster-id 118.229.41.9
+  policy vpn-target
+  peer ibgpv6-core-fm enable
+  peer ibgpv6-core-fm advertise encap-type srv6
+  peer 2001:253:1::C01 enable
+  peer 2001:253:1::C01 group ibgpv6-core-fm
+  peer ibgpv6-core-rr enable
+  peer ibgpv6-core-rr advertise encap-type srv6
+  peer ibgpv6-core-rr reflect-client
+  peer 2001:253:1::A09 enable
+  peer 2001:253:1::A09 group ibgpv6-core-rr
+  peer 2001:253:1::E09 enable
+  peer 2001:253:1::E09 group ibgpv6-core-rr
+#
+bgp path-attribute attr-set accept-zero-value
+bgp path-attribute community accept-zero-length
+bgp path-attribute ext-community accept-zero-length
+bgp path-attribute ipv6-ext-community accept-zero-length
+bgp path-attribute large-community accept-zero-length
+bgp path-attribute attr-set accept-zero-length
+bgp path-attribute wide-community accept-zero-length
+#
+route loop-detect ospf enable
+#
+undo dcn
+#
+route-policy advertise_null deny node 10
+#
+#
+return

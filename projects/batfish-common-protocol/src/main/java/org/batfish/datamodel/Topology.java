@@ -1,0 +1,146 @@
+package org.batfish.datamodel;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import org.batfish.datamodel.collections.NodeInterfacePair;
+
+public class Topology implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+
+  @JsonCreator
+  private static Topology jacksonCreateTopology(SortedSet<Edge> edges) {
+    return new Topology(edges);
+  }
+
+  private final SortedSet<Edge> _edges;
+
+  private final Map<NodeInterfacePair, SortedSet<Edge>> _interfaceEdges;
+
+  private final Map<String, SortedSet<Edge>> _nodeEdges;
+
+  public Topology(SortedSet<Edge> edges) {
+    _edges = new TreeSet<>(edges);
+    _nodeEdges = new HashMap<>();
+    _interfaceEdges = new HashMap<>();
+    rebuildFromEdges();
+  }
+
+  @JsonIgnore
+  public SortedSet<Edge> getEdges() {
+    return _edges;
+  }
+
+  @JsonIgnore
+  public Map<NodeInterfacePair, SortedSet<Edge>> getInterfaceEdges() {
+    return _interfaceEdges;
+  }
+
+
+  public Set<NodeInterfacePair> getNeighbors(NodeInterfacePair iface) {
+    return getInterfaceEdges()
+        .getOrDefault(iface, ImmutableSortedSet.of())
+        .stream()
+        .filter(e -> e.getFirst().equals(iface))
+        .map(Edge::getSecond)
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  @JsonIgnore
+  public Map<String, SortedSet<Edge>> getNodeEdges() {
+    return _nodeEdges;
+  }
+
+  /** Removes the specified blacklists from the topology */
+  public void prune(
+      Set<Edge> blacklistEdges,
+      Set<String> blacklistNodes,
+      Set<NodeInterfacePair> blacklistInterfaces) {
+    if (blacklistEdges != null) {
+      SortedSet<Edge> edges = getEdges();
+      edges.removeAll(blacklistEdges);
+    }
+    if (blacklistNodes != null) {
+      for (String blacklistNode : blacklistNodes) {
+        removeNode(blacklistNode);
+      }
+    }
+    if (blacklistInterfaces != null) {
+      for (NodeInterfacePair blacklistInterface : blacklistInterfaces) {
+        removeInterface(blacklistInterface);
+      }
+    }
+    rebuildFromEdges();
+  }
+
+  private void rebuildFromEdges() {
+    _nodeEdges.clear();
+    _interfaceEdges.clear();
+    for (Edge edge : getEdges()) {
+      String node1 = edge.getNode1();
+      String node2 = edge.getNode2();
+      NodeInterfacePair int1 = edge.getInterface1();
+      NodeInterfacePair int2 = edge.getInterface2();
+
+      SortedSet<Edge> node1Edges = _nodeEdges.computeIfAbsent(node1, k -> new TreeSet<>());
+      node1Edges.add(edge);
+
+      SortedSet<Edge> node2Edges = _nodeEdges.computeIfAbsent(node2, k -> new TreeSet<>());
+      node2Edges.add(edge);
+
+      SortedSet<Edge> interface1Edges = _interfaceEdges.computeIfAbsent(int1, k -> new TreeSet<>());
+      interface1Edges.add(edge);
+
+      SortedSet<Edge> interface2Edges = _interfaceEdges.computeIfAbsent(int2, k -> new TreeSet<>());
+      interface2Edges.add(edge);
+    }
+  }
+
+  private void removeInterface(NodeInterfacePair iface) {
+    SortedSet<Edge> interfaceEdges = _interfaceEdges.get(iface);
+    if (interfaceEdges != null) {
+      _edges.removeAll(interfaceEdges);
+    }
+  }
+
+  private void removeNode(String hostname) {
+    SortedSet<Edge> nodeEdges = _nodeEdges.get(hostname);
+    if (nodeEdges != null) {
+      _edges.removeAll(nodeEdges);
+    }
+  }
+
+  @JsonValue
+  public SortedSet<Edge> sortedEdges() {
+    return new TreeSet<>(_edges);
+  }
+
+  //对节点间的边进行编码
+  public void setEdgeNum(){
+    Integer num=0;
+    HashMap<String,Integer> topology_edge_num=new HashMap<>();
+    for(Edge temp:_edges)
+    {
+      String edge_name=temp.getNode1()+"-"+temp.getNode2();
+      String edge_name_reverse=temp.getNode2()+"-"+temp.getNode1();
+      if(topology_edge_num.get(edge_name)==null)
+      {
+        topology_edge_num.put(edge_name,num);
+        topology_edge_num.put(edge_name_reverse,num);
+        temp.setEdgeNum(num);
+        num++;
+      }else{
+        temp.setEdgeNum(topology_edge_num.get(edge_name));
+      }
+    }
+  }
+}

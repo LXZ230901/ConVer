@@ -1,0 +1,69 @@
+﻿#
+#
+#
+#
+bgp 38272
+ router-id 118.229.41.9
+ private-4-byte-as enable
+ group ibgpv6-core-fm internal
+ peer ibgpv6-core-fm connect-interface LoopBack0
+ peer 2001:253:1::C01 as-number 38272
+ peer 2001:253:1::C01 group ibgpv6-core-fm
+ peer 2001:253:1::C01 description to_fm_bj-c1
+ group ibgpv6-core-rr internal
+ peer ibgpv6-core-rr connect-interface LoopBack0
+ peer 2001:253:1::A09 as-number 38272
+ peer 2001:253:1::A09 group ibgpv6-core-rr
+ peer 2001:253:1::A09 description to_rrc_pku-a1
+ peer 2001:253:1::E09 as-number 38272
+ peer 2001:253:1::E09 group ibgpv6-core-rr
+ peer 2001:253:1::E09 description to_rrc_pku-a1
+ #
+ ipv4-family unicast
+  undo synchronization
+  undo peer ibgpv6-core-fm enable
+  undo peer ibgpv6-core-rr enable
+ #
+ ipv6-family unicast
+  undo synchronization
+  reflector cluster-id 118.229.41.9
+  peer ibgpv6-core-fm enable
+  peer ibgpv6-core-fm next-hop-local
+  peer ibgpv6-core-fm advertise-community
+  peer 2001:253:1::C01 enable
+  peer 2001:253:1::C01 group ibgpv6-core-fm
+  peer ibgpv6-core-rr enable
+  peer ibgpv6-core-rr reflect-client
+  peer ibgpv6-core-rr next-hop-local
+  peer ibgpv6-core-rr advertise-community
+  peer 2001:253:1::A09 enable
+  peer 2001:253:1::A09 group ibgpv6-core-rr
+  peer 2001:253:1::E09 enable
+  peer 2001:253:1::E09 group ibgpv6-core-rr
+ #
+ l2vpn-family evpn
+  reflector cluster-id 118.229.41.9
+  policy vpn-target
+  peer ibgpv6-core-fm enable
+  peer ibgpv6-core-fm advertise encap-type srv6
+  peer 2001:253:1::C01 enable
+  peer 2001:253:1::C01 group ibgpv6-core-fm
+  peer ibgpv6-core-rr enable
+  peer ibgpv6-core-rr advertise encap-type srv6
+  peer ibgpv6-core-rr reflect-client
+  peer 2001:253:1::A09 enable
+  peer 2001:253:1::A09 group ibgpv6-core-rr
+  peer 2001:253:1::E09 enable
+  peer 2001:253:1::E09 group ibgpv6-core-rr
+#
+bgp path-attribute attr-set accept-zero-value
+bgp path-attribute community accept-zero-length
+bgp path-attribute ext-community accept-zero-length
+bgp path-attribute ipv6-ext-community accept-zero-length
+bgp path-attribute large-community accept-zero-length
+bgp path-attribute attr-set accept-zero-length
+bgp path-attribute wide-community accept-zero-length
+#
+route-policy advertise_null deny node 10
+#
+return

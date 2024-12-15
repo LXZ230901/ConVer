@@ -1,0 +1,37 @@
+!
+!
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+!
+hostname R13
+!
+interface Loopback0
+  ip address 13.13.13.13/32
+!
+interface Serial0
+  ip address 10.0.14.1/24
+!
+interface Serial1
+  ip address 10.0.20.1/24
+  ip router isis
+!
+router isis
+  net 49.0005.0000.0000.0001.00
+!
+!
+router bgp 4
+  bgp bestpath as-path multipath-relax
+  network 10.0.20.0/24
+  neighbor 5.5.5.5 remote-as 1
+  neighbor 5.5.5.5 update-source loopback0
+  neighbor 5.5.5.5 next-hop-self
+!
+!
+ip route 13.0.0.0/8 Null0
+!
+!
+control-plane
+!
+!
+end

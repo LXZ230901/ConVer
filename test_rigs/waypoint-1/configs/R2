@@ -1,0 +1,19 @@
+!
+hostname R2
+!
+interface Loopback0
+  ip address 70.0.2.0/32
+!
+interface Serial0
+  ip address 10.0.0.1/24
+!
+interface Serial1
+  ip address 10.0.2.0/24
+!
+!
+router bgp 2
+  neighbor 10.0.0.0 remote-as 1
+  neighbor 10.0.2.1 remote-as 4
+!
+!
+end

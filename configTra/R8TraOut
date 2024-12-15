@@ -1,0 +1,63 @@
+
+router isis 1
+ is-type level-1
+ net 49.0002.0000.0000.0002.00
+!
+firewall zone Local priority 15
+!
+interface Ethernet0/0/0
+!
+interface Ethernet0/0/1
+!
+interface Ethernet0/0/2
+!
+interface Ethernet0/0/3
+!
+interface Ethernet0/0/4
+!
+interface Ethernet0/0/5
+!
+interface Ethernet0/0/6
+!
+interface Ethernet0/0/7
+!
+interface GigabitEthernet0/0/0
+ ip address 10.0.8.2 255.255.255.0
+ isis enable 1
+!
+interface GigabitEthernet0/0/1
+ ip address 10.0.10.1 255.255.255.0
+ isis enable 1
+!
+interface Null0
+!
+interface Loopback0
+ ip address 8.8.8.8 255.255.255.255
+ isis enable 1
+!
+interface Loopback8
+ isis enable 1
+!
+router bgp 1
+ bgp router-id 8.8.8.8
+ neighbor 1.1.1.1 remote-as 1
+ neighbor 1.1.1.1 update-source Loopback0
+ neighbor 10.10.10.10 remote-as 1
+ neighbor 10.10.10.10 update-source Loopback0
+ !
+ address-family ipv4 unicast
+  no synchronization
+  neighbor 1.1.1.1 activate
+  neighbor 1.1.1.1 next-hop-self
+  neighbor 10.10.10.10 activate
+  neighbor 10.10.10.10 next-hop-self
+ exit-address-family
+!
+ip route 0.0.0.0 0.0.0.0 7.7.7.7
+!
+line console 0
+ password 
+line vty 0 4
+line vty 16 20
+!
+end

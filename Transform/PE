@@ -1,0 +1,46 @@
+!
+vrf definition slice1001
+ address-family ipv6
+ rd 38272:1001
+ route-target import 38272:1001
+ route-target export 38272:1001
+!
+vrf definition vpn-WhiteBox
+ address-family ipv6
+!
+router isis 2
+ !
+ vrf vpn-WhiteBox
+  is-type level-2-only
+  metric-style wide
+  net 02.1829.0020.0002.00
+ !
+ address-family ipv6
+  redistribute static route-map W-Box
+ exit address-family
+!
+ipv6 prefix-list W-Slice seq 10 permit 240A:A000::/20 le 40
+!
+route-map W-Box permit 10
+ match ipv6 address prefix-list W-Slice
+!
+route-map W-Box deny 1000
+!
+!
+!与CE相连的接口
+interface GigabitEthernet1/0/9.1001
+ encapsulation dot1q 1001
+ ip vrf forwarding slice1001
+ ipv6 address 240A:A3E8:100::1/64
+!
+!与P相连的子接口
+interface GigabitEthernet2/0/1000.2
+ encapsulation dot1q 2
+ ip vrf forwarding vpn-WhiteBox
+ ipv6 address 2001:203:2:10::1/64
+ ipv6 router isis 2
+ isis network point-to-point
+!
+!配置切片内到远端节点的静态路由，指定目的VPN为骨干网公共VPN
+ipv6 route vrf slice1001 240A:A3E8::/32 nexthop-vrf vpn-WhiteBox tag 1
+ 

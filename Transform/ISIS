@@ -1,0 +1,11 @@
+vrf definition v1
+ rd 200:1
+router isis v1a 
+ vrf v1
+  net 49.000b.0000.0001.0002.00
+  is-type level-1
+  log-adjacency-changes
+  address-family ipv6
+   redistribute isis v1b route-map abc
+   redistribute isis level-1 into level-2 distribute-list xyz
+

@@ -1,0 +1,33 @@
+﻿
+#
+dhcp server request-packet all-interface disable
+#
+dot1x-template 1
+#
+isis 1
+ is-level level-2
+ cost-style wide-compatible
+ timer lsp-generation 1 50 50 level-2
+ bfd all-interfaces enable
+ bandwidth-reference 1000000
+ auto-cost enable compatible
+ network-entity 02.1829.0041.0009.00
+ is-name pku-c1
+ import-route direct
+ bfd session-up check
+ set-overload on-startup 360 route-delay-distribute 240 send-sa-bit 120 allow external
+ #
+ ipv6 enable topology ipv6
+ ipv6 bandwidth-reference 1000000
+ ipv6 auto-cost enable compatible
+ ipv6 bfd all-interfaces enable
+ ipv6 bfd all-interfaces min-tx-interval 10 min-rx-interval 10 frr-binding
+ segment-routing ipv6 locator pku-c1
+ ipv6 avoid-microloop segment-routing
+ ipv6 avoid-microloop segment-routing rib-update-delay 10000
+ ipv6 frr
+  loop-free-alternate level-2
+  ti-lfa level-2
+ #
+#
+return

@@ -1,0 +1,40 @@
+
+router isis 
+ net 49.0002.0000.0000.0005.00
+!
+interface GigabitEthernet0/0/0
+ ip address 10.0.6.2 255.255.255.0 
+ ip router isis 1
+!
+interface GigabitEthernet0/0/1
+ ip address 10.0.9.1 255.255.255.0 
+ ip router isis 1
+!
+interface GigabitEthernet0/0/2
+ ip address 10.0.8.1 255.255.255.0 
+ ip router isis 1
+!
+interface Null0
+!
+interface Loopback0
+ ip address 7.7.7.7 255.255.255.255 
+ ip router isis 1
+!
+router bgp 1
+ bgp log-neighbor-changes
+ neighbor 1.1.1.1 remote-as 1
+ neighbor 10.10.10.10 remote-as 1
+ neighbor 10.10.10.10 update-source Loopback0
+ address-family ipv4
+  neighbor 1.1.1.1 activate
+  neighbor 10.10.10.10 activate
+  neighbor 10.10.10.10 next-hop-self
+ exit-address-family
+!
+line con 0
+ password 
+!
+line vty 0 4
+!
+line vty 16 20
+!
